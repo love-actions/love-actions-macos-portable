@@ -1,0 +1,254 @@
+name: Love actions for macOS
+description: macOS CI/CD for LÖVE based games
+branding:
+  icon: "heart"
+  color: "purple"
+inputs:
+  app-name:
+    description: |
+      App display name
+      Would be used in platform/xcode/macosx/love-macosx.plist
+    required: false
+    default: "LÖVE for macOS"
+  bundle-id:
+    description: |
+      App bundle id
+      Would be used in platform/xcode/love.xcodeproj/project.pbxproj
+    required: false
+    default: "org.love2d.macOS"
+  copyright:
+    description: |
+      App copyright info
+      Would be used in platform/xcode/macosx/love-macosx.plist
+    required: false
+  icon-path:
+    description: |
+      Icon path
+      Should be .icns format
+      Would be used in platform/xcode/Images.xcassets/OS X AppIcon.appiconset
+    required: true
+    default: "./icon.icns"
+  love-package:
+    description: |
+      Love package
+      Would be used to assemble the executable
+    required: false
+    default: "./game.love"
+  product-name:
+    description: |
+      Base name of the package
+      Would be used to rename products
+    required: false
+    default: "love_app"
+  version-string:
+    description: |
+      App version string
+      Use 3 numbers seperated by dots
+      Looks like 3.2.1
+    required: false
+    default: "11.4"
+  output-folder:
+    description: |
+      Packages output folder
+      All packages would be placed here
+    required: false
+    default: "./build"
+  account-username:
+    description: |
+      Account username
+      Would be used to sign the app
+    required: true
+  account-password:
+    description: |
+      Account password
+      Would be used to sign the app
+    required: true
+  certificate-base64:
+    description: |
+      Certificate base64 content
+      Would be used to sign the app
+    required: true
+  certificate-password:
+    description: |
+      Certificate password
+      Would be used to sign the app
+    required: true
+  certificate-type:
+    description: |
+      Certificate type
+      Would be used to sign the app
+    required: true
+  team-id:
+    description: |
+      Developer team id
+      Would be used to sign the app
+    required: true
+outputs:
+  package-paths:
+    description: |
+      Paths to the built packages in a bash list
+      Would be paths relative to repository root, separated by spaces
+      Looks like: ./build/game.apk ./build/game.abb
+    value: ${{ steps.gather-packages.outputs.package-paths }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout love
+      uses: actions/checkout@v3
+      with: 
+        path: love
+        ref: c35356c841976eb6f370347b81eec845d5520338
+        repository: love2d/love
+    - name: Checkout framework SDK
+      uses: actions/checkout@v3
+      with: 
+        path: love-apple-dependencies
+        ref: 402eed62c2bd654a860bb64544393285fb640497
+        repository: love2d/love-apple-dependencies
+    - name: Move framework SDK and love package
+      shell: bash
+      run: |
+        mv ./love-apple-dependencies/macOS/Frameworks/ ./love/platform/xcode/macosx
+        mv ./love-apple-dependencies/iOS/libraries/ ./love/platform/xcode/ios
+        mv ${{ inputs.love-package }} ./love/platform/xcode/game.love
+        mkdir -p ./love/platform/xcode/build/Debug
+        mkdir -p ./love/platform/xcode/build/Release
+    - name: Process icons
+      shell: bash
+      run: |
+        rm -rf ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/*.png
+        iconutil -c iconset -o ./icon.iconset ${{ inputs.icon-path }}
+        mv -f ./icon.iconset/* ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/
+    - name: Create keychain and import certificate
+      env:
+        CERTIFICATE_FILENAME: ./certificate.p12
+        KEYCHAIN_FILENAME: ./build.keychain
+        KEYCHAIN_PASSWORD: build_keychain_password
+      shell: bash
+      run: |
+        echo -n "${{ inputs.certificate-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
+
+        security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        security set-keychain-settings -lut 21600 $KEYCHAIN_FILENAME
+        security default-keychain -s $KEYCHAIN_FILENAME
+        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.certificate-password }}" -t cert
+        security list-keychain -d user -s $KEYCHAIN_FILENAME
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+    - name: Modify XCode project
+      shell: bash
+      run: |
+        npm i plist xcode
+
+        cat <<EOT >> temp.js
+        const fs = require('fs');
+        const plist = require('plist');
+        const xcode = require('xcode');
+
+        const configuration = 'Release'
+
+        const liblovePbxprojPath = './love/platform/xcode/liblove.xcodeproj/project.pbxproj';
+        const libloveProject = xcode.project(liblovePbxprojPath).parseSync();
+        const libloveTarget = 'liblove-macosx'
+        libloveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.9', configuration, libloveTarget);
+        fs.writeFileSync(liblovePbxprojPath, libloveProject.writeSync());
+
+        const lovePbxprojPath = './love/platform/xcode/love.xcodeproj/project.pbxproj';
+        const loveProject = xcode.project(lovePbxprojPath).parseSync();
+        const loveTarget = 'love-macosx'
+        loveProject.updateBuildProperty('CODE_SIGN_IDENTITY', '"${{ inputs.certificate-type }}"', configuration, loveTarget);
+        loveProject.updateBuildProperty('DEVELOPMENT_TEAM', '${{ inputs.team-id }}', configuration, loveTarget);
+        loveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.9', configuration, loveTarget);
+        loveProject.updateBuildProperty('MARKETING_VERSION', '${{ inputs.version-string }}', configuration, loveTarget);
+        loveProject.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', '${{ inputs.bundle-id }}', configuration, loveTarget);
+        loveProject.updateBuildProperty('PRODUCT_NAME', '${{ inputs.product-name }}', configuration, loveTarget);
+        loveProject.addResourceFile(
+            './game.love',
+            {target: loveProject.findTargetKey('"love-macosx"')},
+            loveProject.findPBXGroupKey({name: 'Resources'})
+        );
+        fs.writeFileSync(lovePbxprojPath, loveProject.writeSync());
+
+        const plistPath = './love/platform/xcode/macosx/love-macosx.plist';
+        const parsed = plist['parse'](fs.readFileSync(plistPath, 'utf8'));
+        parsed['CFBundleExecutable'] = '${{ inputs.product-name }}';
+        parsed['CFBundleName'] = '${{ inputs.app-name }}';
+        parsed['NSHumanReadableCopyright'] = '$ {{ inputs.copyright }}';
+        delete parsed['CFBundleDocumentTypes'];
+        delete parsed['UTExportedTypeDeclarations'];
+        fs.writeFileSync(plistPath, plist['build'](parsed));
+
+        const exportPlistPath = './love/platform/xcode/macosx/macos-copy-app.plist';
+        const exportPlist = plist['parse'](fs.readFileSync(exportPlistPath, 'utf8'));
+        exportPlist['method'] = 'developer-id';
+        exportPlist['teamID'] = '${{ inputs.team-id }}';
+        fs.writeFileSync(exportPlistPath, plist['build'](exportPlist));
+
+        const iconPath = './love/platform/xcode/Images.xcassets/OS X AppIcon.appiconset/Contents.json';
+        const iconContents = JSON.parse(fs.readFileSync(iconPath, 'utf8'));
+        iconContents.images.forEach(image => {
+            image.filename = 'icon_' + image.size + (image.scale === '2x' ? '@2x' : '') + '.png';
+        });
+        fs.writeFileSync(iconPath, JSON.stringify(iconContents));
+
+        console.info('Project info updated.');
+        EOT
+
+        node temp.js
+    - name: Build MacOS app
+      env:
+        ARCHIVE_PATH: ./archive.xcarchive
+        KEYCHAIN_FILENAME: ./build.keychain
+        KEYCHAIN_PASSWORD: build_keychain_password
+      shell: bash
+      run: |
+        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+
+        xcodebuild clean archive -quiet \
+        -project ./love/platform/xcode/love.xcodeproj \
+        -scheme love-macosx \
+        -configuration Release \
+        -archivePath ${{ env.ARCHIVE_PATH }} \
+        OTHER_CFLAGS="-Wno-unused-parameter -Wno-sign-compare -Wno-conditional-uninitialized -Wno-strict-prototypes"
+
+        xcodebuild -exportArchive \
+        -archivePath ${{ env.ARCHIVE_PATH }} \
+        -exportPath ${{ inputs.output-folder }} \
+        -exportOptionsPlist ./love/platform/xcode/macosx/macos-copy-app.plist
+    - name: Notarize application bundle
+      shell: python3 {0}
+      run: |
+        import json
+        import os
+        import subprocess
+
+        temp_filename = './forNotarize.zip'
+        os.system(
+            'ditto -c -k --sequesterRsrc --keepParent '
+            '${{ inputs.output-folder }}/${{ inputs.product-name }}.app ' +
+            temp_filename
+        )
+        result = json.loads(
+            subprocess.run(
+                'xcrun notarytool submit ' + temp_filename +
+                ' --output-format json --wait'
+                ' --apple-id "${{ inputs.account-username }}"'
+                ' --password "${{ inputs.account-password }}"'
+                ' --team-id "${{ inputs.team-id }}"',
+                stdout=subprocess.PIPE,
+                shell=True
+            ).stdout.decode('utf-8')
+        )
+        print(result)
+        if result['status'] == 'Accepted':
+            os.system('xcrun stapler staple ${{ inputs.output-folder }}/${{ inputs.product-name }}.app')
+            os.remove(temp_filename)
+        else:
+            print('Notarization failed: ' + result['message'])
+            exit(1)
+    - name: Gather packages in output folder
+      id: gather-packages
+      shell: bash
+      run: |
+        echo ::set-output name=package-paths::$(ls -d ${{ inputs.output-folder }}/*)
