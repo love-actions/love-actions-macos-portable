@@ -47,23 +47,23 @@ See related actions below:
 
 | Name                     | Required  | Default                | Description                                                                                          |
 | :----------------------- | --------- | ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| `app-name`             | `false` | `"LÖVE for macOS"`  | App display name, used in `platform/xcode/macosx/love-macosx.plist`                                |
-| `bundle-id`            | `false` | `"org.love2d.macOS"` | App bundle id, used in `platform/xcode/love.xcodeproj/project.pbxproj`                             |
-| `copyright`            | `false` | `""`                 | App copyright info, used in `platform/xcode/macosx/love-macosx.plist`                              |
-| `icon-path`            | `false` | `"./icon.icns"`      | `.icns` format icon's path, used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset`     |
+| `app-name`             | `false` | `"LÖVE for macOS"`  | App display name. Used in `platform/xcode/macosx/love-macosx.plist`                              |
+| `bundle-id`            | `false` | `"org.love2d.macOS"` | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                          |
+| `copyright`            | `false` | `""`                 | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist`                           |
+| `icon-path`            | `false` | `"./icon.icns"`      | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset`  |
 | `love-package`         | `false` | `"./game.love"`      | `.love` game package file path                                                                     |
 | `product-name`         | `false` | `"love_app"`         | Base name of the package. Used to rename products                                                    |
-| `version-string`       | `false` | `"11.4"`             | App version string no more than 3 numbers, used in `platform/xcode/love.xcodeproj/project.pbxproj` |
+| `version-string`       | `false` | `"11.4"`             | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj` |
 | `output-folder`        | `false` | `"./build"`          | Built packages output folder                                                                         |
-| `account-username`     | `true`  | `""`                 | Apple ID username, used to sign the app                                                              |
-| `account-password`     | `true`  | `""`                 | App specified password, used to sign the app                                                         |
-| `certificate-base64`   | `true`  | `""`                 | Certificate base64 content, used to sign the app                                                     |
-| `certificate-password` | `true`  | `""`                 | Certificate password, used to sign the app                                                           |
-| `certificate-type`     | `true`  | `""`                 | Certificate type, usually be `Developer ID Application`, used to sign the app                      |
-| `team-id`              | `true`  | `""`                 | Developer team id, used to sign the app                                                              |
+| `account-username`     | `true`  | `""`                 | Apple ID username. Used to sign the app                                                           |
+| `account-password`     | `true`  | `""`                 | App specified password. Used to sign the app                                                      |
+| `certificate-base64`   | `true`  | `""`                 | Certificate base64 content. Used to sign the app                                                  |
+| `certificate-password` | `true`  | `""`                 | Certificate password. Used to sign the app                                                        |
+| `certificate-type`     | `true`  | `""`                 | Certificate type. Usually be `Developer ID Application`. Used to sign the app                |
+| `team-id`              | `true`  | `""`                 | Developer team id. Used to sign the app                                                           |
 
 ## All outputs
 
 | Name              | Example                 | Description                                                                                     |
 | :---------------- | ----------------------- | ----------------------------------------------------------------------------------------------- |
-| `package-paths` | `./build/my_game.app` | built packages' paths in a bash-style list relative to the repository root, separated by spaces |
+| `package-paths` | `./build/my_game.app` | Built packages' paths in a bash-style list relative to the repository root, separated by spaces |
