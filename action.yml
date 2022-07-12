@@ -214,7 +214,7 @@ runs:
 
         xcodebuild -exportArchive \
         -archivePath ${{ env.ARCHIVE_PATH }} \
-        -exportPath ${{ inputs.output-folder }} \
+        -exportPath ./ \
         -exportOptionsPlist ./love/platform/xcode/macosx/macos-copy-app.plist
     - name: Notarize application bundle
       shell: python3 {0}
@@ -226,7 +226,7 @@ runs:
         temp_filename = './forNotarize.zip'
         os.system(
             'ditto -c -k --sequesterRsrc --keepParent '
-            '${{ inputs.output-folder }}/${{ inputs.product-name }}.app ' +
+            './${{ inputs.product-name }}.app ' +
             temp_filename
         )
         result = json.loads(
@@ -242,7 +242,7 @@ runs:
         )
         print(result)
         if result['status'] == 'Accepted':
-            os.system('xcrun stapler staple ${{ inputs.output-folder }}/${{ inputs.product-name }}.app')
+            os.system('xcrun stapler staple ./${{ inputs.product-name }}.app')
             os.remove(temp_filename)
         else:
             print('Notarization failed: ' + result['message'])
@@ -251,4 +251,5 @@ runs:
       id: gather-packages
       shell: bash
       run: |
+        ditto -c -k --sequesterRsrc --keepParent ./${{ inputs.product-name }}.app ${{ inputs.output-folder }}/${{ inputs.product-name }}.zip
         echo ::set-output name=package-paths::$(ls -d ${{ inputs.output-folder }}/*)
