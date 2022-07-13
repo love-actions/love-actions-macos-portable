@@ -180,17 +180,22 @@ runs:
         rm -rf ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/*.png
         iconutil -c iconset -o ./icon.iconset ${{ inputs.icon-path }}
         mv -f ./icon.iconset/* ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/
-    - name: Create keychain
+    - name: Create keychain and import Developer ID Application certificate
       env:
+        CERTIFICATE_FILENAME: ./certificate.p12
         KEYCHAIN_FILENAME: ./build.keychain
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
       run: |
+        echo -n "${{ inputs.developer-id-application-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
         security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
         security set-keychain-settings -lut 21600 $KEYCHAIN_FILENAME
         security default-keychain -s $KEYCHAIN_FILENAME
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-application-password }}" -t cert
+        security list-keychain -d user -s $KEYCHAIN_FILENAME
         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        rm $CERTIFICATE_FILENAME
     - name: Import Developer ID Installer certificate
       if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       env:
@@ -199,20 +204,10 @@ runs:
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
       run: |
-        echo -n "${{ inputs.developer-id-application-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
+        echo -n "${{ inputs.developer-id-installer-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
-        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-application-password }}" -t cert
-        rm $CERTIFICATE_FILENAME
-    - name: Import Developer ID Application certificate
-      env:
-        CERTIFICATE_FILENAME: ./certificate.p12
-        KEYCHAIN_FILENAME: ./build.keychain
-        KEYCHAIN_PASSWORD: build_keychain_password
-      shell: bash
-      run: |
-        echo -n "${{ inputs.developer-id-application-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
-        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
-        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-application-password }}" -t cert
+        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-installer-password }}" -t cert
+        security list-keychain -d user -s $KEYCHAIN_FILENAME
         rm $CERTIFICATE_FILENAME
     - name: Modify XCode project
       shell: bash
