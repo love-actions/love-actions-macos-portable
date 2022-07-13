@@ -44,30 +44,50 @@ See related actions below:
     output-folder: "./dist"
     account-username: ${{ secrets.APPLE_ACCOUNT_USERNAME }}
     account-password: ${{ secrets.APPLE_ACCOUNT_PASSWORD }}
-    certificate-base64: ${{ secrets.APPLE_CERT_DEVELOPER_ID_APPLICATION }}
-    certificate-password: ${{ secrets.APPLE_CERT_DEVELOPER_ID_APPLICATION_PWD }}
-    certificate-type: "Developer ID Application"
+    developer-id-application-base64: ${{ secrets.APPLE_CERT_DEVELOPER_ID_APPLICATION }}
+    developer-id-application-password: ${{ secrets.APPLE_CERT_DEVELOPER_ID_APPLICATION_PWD }}
     team-id: "${{ secrets.APPLE_DEVELOPER_TEAM_ID }}"
+    developer-id-installer-base64: ${{ secrets.APPLE_CERT_DEVELOPER_ID_INSTALLER }}
+    developer-id-installer-password: ${{ secrets.APPLE_CERT_DEVELOPER_ID_INSTALLER_PWD }}
+    dmg-background-path: ./assets/macOS/dmg.png
+    dmg-icon-position: "287 313"
+    dmg-icon-size: "128"
+    dmg-link-position: "734 313"
+    dmg-text-size: "12"
+    dmg-volume-icon-path: ./assets/macOS/dmg.icns
+    dmg-volume-name: "my_game"
+    dmg-window-position: "200 120"
+    dmg-window-size: "1024 604"
 ```
 
 ## All inputs
 
-| Name                     | Required  | Default                | Description                                                                                          |
-| :----------------------- | --------- | ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| `app-name`             | `false` | `"LÖVE for macOS"`  | App display name. Used in `platform/xcode/macosx/love-macosx.plist`                              |
-| `bundle-id`            | `false` | `"org.love2d.macOS"` | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                          |
-| `copyright`            | `false` | `""`                 | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist`                           |
-| `icon-path`            | `false` | `"./icon.icns"`      | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset`  |
-| `love-package`         | `false` | `"./game.love"`      | `.love` game package file path                                                                     |
-| `product-name`         | `false` | `"love_app"`         | Base name of the package. Used to rename products                                                    |
-| `version-string`       | `false` | `"11.4"`             | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj` |
-| `output-folder`        | `false` | `"./build"`          | Built packages output folder                                                                         |
-| `account-username`     | `true`  | `""`                 | Apple ID username. Used to sign the app                                                           |
-| `account-password`     | `true`  | `""`                 | App specified password. Used to sign the app                                                      |
-| `certificate-base64`   | `true`  | `""`                 | Certificate base64 content. Used to sign the app                                                  |
-| `certificate-password` | `true`  | `""`                 | Certificate password. Used to sign the app                                                        |
-| `certificate-type`     | `true`  | `""`                 | Certificate type. Usually be `Developer ID Application`. Used to sign the app                |
-| `team-id`              | `true`  | `""`                 | Developer team id. Used to sign the app                                                           |
+| Name                                | Required | Default              | Description                                                  |
+| :---------------------------------- | -------- | -------------------- | ------------------------------------------------------------ |
+| `app-name`                          | `false`  | `"LÖVE for macOS"`   | App display name. Used in `platform/xcode/macosx/love-macosx.plist` |
+| `bundle-id`                         | `false`  | `"org.love2d.macOS"` | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj` |
+| `copyright`                         | `false`  | `""`                 | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist` |
+| `icon-path`                         | `false`  | `"./icon.icns"`      | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset` |
+| `love-package`                      | `false`  | `"./game.love"`      | `.love` game package file path                               |
+| `product-name`                      | `false`  | `"love_app"`         | Base name of the package. Used to rename products            |
+| `version-string`                    | `false`  | `"11.4"`             | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj` |
+| `output-folder`                     | `false`  | `"./build"`          | Built packages output folder                                 |
+| `account-username`                  | `true`   | `""`                 | Apple ID username. Used to sign the app                      |
+| `account-password`                  | `true`   | `""`                 | App specified password. Used to sign the app                 |
+| `developer-id-application-base64`   | `true`   | `""`                 | Developer ID Application certificate base64 content. Used to sign the app |
+| `developer-id-application-password` | `true`   | `""`                 | Developer ID Application certificate password. Used to sign the app |
+| `team-id`                           | `true`   | `""`                 | Developer team id. Used to sign the app                      |
+| `developer-id-installer-base64`     | `false`   | `""`                 | Developer ID Installer certificate base64 content. Used to sign the .pkg |
+| `developer-id-installer-password`   | `false`   | `""`                 | Developer ID Installer certificate password. Used to sign the .pkg |
+| `dmg-background-path`               | `false`   | `""`                 | DMG background path. Used to create .dmg |
+| `dmg-icon-position`                 | `false`   | `""`                 | DMG icon position. Used to create .dmg |
+| `dmg-icon-size`                     | `false`   | `""`                 | DMG icon size. Used to create .dmg |
+| `dmg-link-position`                 | `false`   | `""`                 | DMG drop link position. Used to create .dmg |
+| `dmg-text-size`                     | `false`   | `""`                 | DMG text size. Used to create .dmg |
+| `dmg-volume-icon-path`              | `false`   | `""`                 | DMG volume icon path. Used to create .dmg |
+| `dmg-volume-name`                   | `false`   | `""`                 | DMG volume name. Used to create .dmg |
+| `dmg-window-position`               | `false`   | `""`                 | DMG window position. Used to create .dmg |
+| `dmg-window-size`                   | `false`   | `""`                 | DMG window size. Used to create .dmg |
 
 ## All outputs
 

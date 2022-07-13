@@ -56,33 +56,94 @@ inputs:
   account-username:
     description: |
       Account username
-      Would be used to sign the app
+      Would be used to sign the .app
     required: true
   account-password:
     description: |
       Account password
-      Would be used to sign the app
+      Would be used to sign the .app
     required: true
-  certificate-base64:
+  developer-id-application-base64:
     description: |
-      Certificate base64 content
-      Would be used to sign the app
+      Developer ID Application certificate base64 content
+      Would be used to sign the .app
     required: true
-  certificate-password:
+  developer-id-application-password:
     description: |
-      Certificate password
-      Would be used to sign the app
-    required: true
-  certificate-type:
-    description: |
-      Certificate type
-      Would be used to sign the app
+      Developer ID Application certificate password
+      Would be used to sign the .app
     required: true
   team-id:
     description: |
       Developer team id
-      Would be used to sign the app
+      Would be used to sign the .app
     required: true
+  developer-id-installer-base64:
+    description: |
+      Developer ID Installer certificate base64 content
+      Would be used to sign the .pkg
+    required: false
+  developer-id-installer-password:
+    description: |
+      Developer ID Installer certificate password
+      Would be used to sign the .pkg
+    required: false
+  dmg-background-path:
+    description: |
+      DMG background path
+      Should be .png format
+      Would be used to create .dmg
+    required: false
+    default: "./background.png"
+  dmg-icon-position:
+    description: |
+      DMG icon position
+      Would be used to create .dmg
+    required: false
+    default: "top-left"
+  dmg-icon-size:
+    description: |
+      DMG icon size
+      Would be used to create .dmg
+    required: false
+    default: "128"
+  dmg-link-position:
+    description: |
+      DMG drop link position
+      Would be used to create .dmg
+    required: false
+    default: "bottom-left"
+  dmg-text-size:
+    description: |
+      DMG text size
+      Would be used to create .dmg
+    required: false
+    default: "12"
+  dmg-volume-icon-path:
+    description: |
+      DMG volume icon path
+      Should be .icns format
+      Would be used to create .dmg
+    required: false
+    default: "./icon.icns"
+  dmg-volume-name:
+    description: |
+      DMG volume name
+      Would be used to create .dmg
+    required: false
+    default: "LÖVE for macOS"
+  dmg-window-position:
+    description: |
+      DMG window position
+      Would be used to create .dmg
+    required: false
+    default: "top-left"
+  dmg-window-size:
+    description: |
+      DMG window size
+      Would be used to create .dmg
+    required: false
+    default: "512"
 outputs:
   package-paths:
     description: |
@@ -90,7 +151,6 @@ outputs:
       Would be paths relative to repository root, separated by spaces
       Looks like: ./build/game.apk ./build/game.abb
     value: ${{ steps.gather-packages.outputs.package-paths }}
-
 runs:
   using: "composite"
   steps:
@@ -120,20 +180,20 @@ runs:
         rm -rf ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/*.png
         iconutil -c iconset -o ./icon.iconset ${{ inputs.icon-path }}
         mv -f ./icon.iconset/* ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/
-    - name: Create keychain and import certificate
+    - name: Create keychain and import Developer ID Application certificate
       env:
         CERTIFICATE_FILENAME: ./certificate.p12
         KEYCHAIN_FILENAME: ./build.keychain
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
       run: |
-        echo -n "${{ inputs.certificate-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
+        echo -n "${{ inputs.developer-id-application-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
 
         security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
         security set-keychain-settings -lut 21600 $KEYCHAIN_FILENAME
         security default-keychain -s $KEYCHAIN_FILENAME
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
-        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.certificate-password }}" -t cert
+        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-application-password }}" -t cert
         security list-keychain -d user -s $KEYCHAIN_FILENAME
         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
     - name: Modify XCode project
@@ -157,7 +217,7 @@ runs:
         const lovePbxprojPath = './love/platform/xcode/love.xcodeproj/project.pbxproj';
         const loveProject = xcode.project(lovePbxprojPath).parseSync();
         const loveTarget = 'love-macosx'
-        loveProject.updateBuildProperty('CODE_SIGN_IDENTITY', '"${{ inputs.certificate-type }}"', configuration, loveTarget);
+        loveProject.updateBuildProperty('CODE_SIGN_IDENTITY', '"Developer ID Application"', configuration, loveTarget);
         loveProject.updateBuildProperty('DEVELOPMENT_TEAM', '${{ inputs.team-id }}', configuration, loveTarget);
         loveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.9', configuration, loveTarget);
         loveProject.updateBuildProperty('MARKETING_VERSION', '${{ inputs.version-string }}', configuration, loveTarget);
@@ -247,6 +307,33 @@ runs:
         else:
             print('Notarization failed: ' + result['message'])
             exit(1)
+    - name: Create pkg file
+      if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
+      shell: bash
+      run: |
+        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        [[ $(security find-identity -v) =~ (".+") ]]
+        productbuild --sign ${BASH_REMATCH[1]} \
+        --component ${{ inputs.product-name }}.app /Applications \
+        ${{ inputs.output-folder }}/${{ inputs.product-name }}.pkg
+    - name: Create dmg file
+      if: "${{ inputs.dmg-background-path != '' && inputs.dmg-icon-position != '' && inputs.dmg-icon-size != '' && inputs.dmg-link-position != '' && inputs.dmg-text-size != '' && inputs.dmg-volume-icon-path != '' && inputs.dmg-volume-name != '' && inputs.dmg-window-position != '' && inputs.dmg-window-size != '' }}"
+      shell: bash
+      run: |
+        brew install create-dmg
+        create-dmg \
+        --app-drop-link ${{ inputs.dmg-link-position }} \
+        --background "${{ inputs.dmg-background-path }}" \
+        --hide-extension "${{ inputs.product-name }}.app" \
+        --icon "${{ inputs.product-name }}.app" ${{ inputs.dmg-icon-position }} \
+        --icon-size ${{ inputs.icon-size }} \
+        --text-size ${{ inputs.text-size }} \
+        --volicon "${{ inputs.dmg-volume-icon-path }}" \
+        --volname "${{ inputs.dmg-volume-name }}" \
+        --window-pos ${{ inputs.window-position }} \
+        --window-size ${{ inputs.window-size }} \
+        "${{ inputs.output-folder }}/${{ inputs.product-name }}.dmg" \
+        "${{ inputs.product-name }}.app"
     - name: Gather packages in output folder
       id: gather-packages
       shell: bash
