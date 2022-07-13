@@ -1,8 +1,13 @@
-# love-actions-macos
+# love-actions-macos-portable
 
 ## About
 
-Github Action for building & deploying macOS `.app(zipped)` packages of a [LÖVE](https://love2d.org/) framework based game.
+Github Action for building & deploying macOS `.app(zipped)`, `.dmg` and `.pkg` packages of a [LÖVE](https://love2d.org/) framework based game.
+
+### Note
+
+This action would help you distribute your game ***OUTSIDE*** the App Store.
+If you want to distribute through the App Store, please use [love-actions-macos-appstore](https://github.com/marketplace/actions/)
 
 ### Related actions
 

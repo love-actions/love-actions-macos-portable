@@ -1,5 +1,5 @@
-name: Love actions for macOS
-description: macOS CI/CD for LÖVE based games
+name: Love actions for macOS portable
+description: macOS portable CI/CD for LÖVE based games
 branding:
   icon: "heart"
   color: "purple"
