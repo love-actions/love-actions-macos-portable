@@ -23,6 +23,8 @@ See related actions below:
 
 [Love actions for Linux](https://github.com/marketplace/actions/love-actions-for-linux)
 
+[Love actions for macOS AppStore](https://github.com/marketplace/actions/love-actions-for-macos-appstore)
+
 [Love actions for Windows](https://github.com/marketplace/actions/love-actions-for-windows)
 
 ## Quick example
