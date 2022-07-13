@@ -328,7 +328,7 @@ runs:
       shell: bash
       run: |
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
-        productbuild --sign $(security find-identity -v | grep '"Developer ID Installer.*"') \
+        productbuild --sign "$(security find-identity -v | grep 'Developer ID Installer.*)')" \
         --component ${{ inputs.product-name }}.app /Applications \
         ${{ inputs.output-folder }}/${{ inputs.product-name }}.pkg
     - name: Create dmg file
