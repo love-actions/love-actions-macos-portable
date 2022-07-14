@@ -182,7 +182,7 @@ runs:
         mv -f ./icon.iconset/* ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/
     - name: Create keychain and import Developer ID Application certificate
       env:
-        CERTIFICATE_FILENAME: ./certificate.p12
+        CERTIFICATE_FILENAME: ./cert_app.p12
         KEYCHAIN_FILENAME: ./build.keychain
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
@@ -194,12 +194,12 @@ runs:
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
         security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-application-password }}" -t cert
         security list-keychain -d user -s $KEYCHAIN_FILENAME
-        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild:,productsign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
         rm $CERTIFICATE_FILENAME
     - name: Import Developer ID Installer certificate
       if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       env:
-        CERTIFICATE_FILENAME: ./certificate.p12
+        CERTIFICATE_FILENAME: ./cert_inst.p12
         KEYCHAIN_FILENAME: ./build.keychain
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
