@@ -320,6 +320,10 @@ runs:
         else:
             print('Notarization failed: ' + result['message'])
             exit(1)
+    - name: Ensure output folder
+      shell: bash
+      run: |
+        mkdir -p ${{ inputs.output-folder }}
     - name: Create pkg file
       if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       env:
