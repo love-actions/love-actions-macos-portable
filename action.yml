@@ -193,9 +193,7 @@ runs:
         security default-keychain -s $KEYCHAIN_FILENAME
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
         security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-application-password }}" -t cert
-        security list-keychain -d user -s $KEYCHAIN_FILENAME
         security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild:,productsign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
-        rm $CERTIFICATE_FILENAME
     - name: Import Developer ID Installer certificate
       if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       env:
@@ -204,11 +202,12 @@ runs:
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
       run: |
-        echo -n "${{ inputs.developer-id-installer-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
+        security set-keychain-settings -lut 21600 $KEYCHAIN_FILENAME
+        security default-keychain -s $KEYCHAIN_FILENAME
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        echo -n "${{ inputs.developer-id-installer-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
         security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-installer-password }}" -t cert
-        security list-keychain -d user -s $KEYCHAIN_FILENAME
-        rm $CERTIFICATE_FILENAME
+        security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild:,productsign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
     - name: Modify XCode project
       shell: bash
       run: |
@@ -334,9 +333,9 @@ runs:
         security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
         identity=$(security find-identity -v | grep -o 'Developer ID Installer[^"]*')
         echo $identity
-        productbuild --sign "$identity" \
-        --component ${{ inputs.product-name }}.app /Applications \
-        ${{ inputs.output-folder }}/${{ inputs.product-name }}.pkg
+        productbuild --component ${{ inputs.product-name }}.app /Applications ./${{ inputs.product-name }}_unsigned.pkg
+        echo "Try productsign"
+        productsign --sign "$identity" ./${{ inputs.product-name }}_unsigned.pkg ${{ inputs.output-folder }}/${{ inputs.product-name }}.pkg
     - name: Create dmg file
       if: "${{ inputs.dmg-background-path != '' && inputs.dmg-icon-position != '' && inputs.dmg-icon-size != '' && inputs.dmg-link-position != '' && inputs.dmg-text-size != '' && inputs.dmg-volume-icon-path != '' && inputs.dmg-volume-name != '' && inputs.dmg-window-position != '' && inputs.dmg-window-size != '' }}"
       shell: bash
