@@ -348,3 +348,7 @@ runs:
       run: |
         ditto -c -k --sequesterRsrc --keepParent $RUNNER_TEMP/macOS/${{ inputs.product-name }}.app ${{ inputs.output-folder }}/${{ inputs.product-name }}.zip
         echo ::set-output name=package-paths::$(ls -d ${{ inputs.output-folder }}/*)
+    - name: Cleanup
+      shell: bash
+      run: |
+        rm -rf $RUNNER_TEMP/macOS
