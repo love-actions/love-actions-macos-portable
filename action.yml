@@ -296,7 +296,7 @@ runs:
     - name: Notarize application bundle
       uses: 26F-Studio/xcode-notarizer@main
       with:
-        product-path:./love-actions-macos-portable/${{ inputs.product-name }}.app
+        product-path: ./love-actions-macos-portable/${{ inputs.product-name }}.app
         apple-id: ${{ inputs.account-username }}
         app-password: ${{ inputs.account-password }}
         team-id: ${{ inputs.team-id }}
@@ -314,7 +314,7 @@ runs:
     - name: Notarize installer pkg
       uses: 26F-Studio/xcode-notarizer@main
       with:
-        product-path:./love-actions-macos-portable/${{ inputs.product-name }}.pkg
+        product-path: ./love-actions-macos-portable/${{ inputs.product-name }}.pkg
         apple-id: ${{ inputs.account-username }}
         app-password: ${{ inputs.account-password }}
         team-id: ${{ inputs.team-id }}
