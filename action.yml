@@ -154,6 +154,11 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Create directories
+      shell: bash
+      run: |
+        mkdir -p $RUNNER_TEMP/macOS/
+        mkdir -p ${{ inputs.output-folder }}
     - name: Checkout love
       uses: actions/checkout@v3
       with:
@@ -288,11 +293,10 @@ runs:
         -archivePath ${{ env.ARCHIVE_PATH }} \
         -exportPath $RUNNER_TEMP/macOS/ \
         -exportOptionsPlist $RUNNER_TEMP/macOS/love/platform/xcode/macosx/macos-copy-app.plist
-    - name: Make app zip and ensure output folder
+    - name: Make app zip
       shell: bash
       run: |
         ditto -c -k --sequesterRsrc --keepParent $RUNNER_TEMP/macOS/${{ inputs.product-name }}.app $RUNNER_TEMP/macOS/${{ inputs.product-name }}.zip
-        mkdir -p ${{ inputs.output-folder }}
     - name: Notarize application bundle
       uses: cocoalibs/xcode-notarization-action@v1
       with:
