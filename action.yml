@@ -157,57 +157,57 @@ runs:
     - name: Checkout love
       uses: actions/checkout@v3
       with:
-        path: love
+        path: $RUNNER_TEMP/macOS/love
         ref: c35356c841976eb6f370347b81eec845d5520338
         repository: love2d/love
     - name: Checkout framework SDK
       uses: actions/checkout@v3
       with:
-        path: love-apple-dependencies
+        path: $RUNNER_TEMP/macOS/love-apple-dependencies
         ref: 402eed62c2bd654a860bb64544393285fb640497
         repository: love2d/love-apple-dependencies
     - name: Move framework SDK and love package
       shell: bash
       run: |
-        mv ./love-apple-dependencies/macOS/Frameworks/ ./love/platform/xcode/macosx
-        mv ./love-apple-dependencies/iOS/libraries/ ./love/platform/xcode/ios
-        mv ${{ inputs.love-package }} ./love/platform/xcode/game.love
-        mkdir -p ./love/platform/xcode/build/Debug
-        mkdir -p ./love/platform/xcode/build/Release
+        mv $RUNNER_TEMP/macOS/love-apple-dependencies/macOS/Frameworks/ $RUNNER_TEMP/macOS/love/platform/xcode/macosx
+        mv $RUNNER_TEMP/macOS/love-apple-dependencies/iOS/libraries/ $RUNNER_TEMP/macOS/love/platform/xcode/ios
+        mv ${{ inputs.love-package }} $RUNNER_TEMP/macOS/love/platform/xcode/game.love
+        mkdir -p $RUNNER_TEMP/macOS/love/platform/xcode/build/Debug
+        mkdir -p $RUNNER_TEMP/macOS/love/platform/xcode/build/Release
     - name: Process icons
       shell: bash
       run: |
-        rm -rf ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/*.png
-        iconutil -c iconset -o ./icon.iconset ${{ inputs.icon-path }}
-        mv -f ./icon.iconset/* ./love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/
+        rm -rf $RUNNER_TEMP/macOS/love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/*.png
+        iconutil -c iconset -o $RUNNER_TEMP/macOS/icon.iconset ${{ inputs.icon-path }}
+        mv -f $RUNNER_TEMP/macOS/icon.iconset/* $RUNNER_TEMP/macOS/love/platform/xcode/Images.xcassets/OS\ X\ AppIcon.appiconset/
     - name: Create keychain and import Developer ID Application certificate
       env:
-        CERTIFICATE_FILENAME: ./cert_app.p12
-        KEYCHAIN_FILENAME: ./build.keychain
+        CERTIFICATE_PATH: $RUNNER_TEMP/macOS/cert_app.p12
+        KEYCHAIN_PATH: $RUNNER_TEMP/macOS/build.keychain
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
       run: |
-        echo -n "${{ inputs.developer-id-application-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
-        security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
-        security set-keychain-settings -lut 21600 $KEYCHAIN_FILENAME
-        security default-keychain -s $KEYCHAIN_FILENAME
-        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
-        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-application-password }}" -t cert
-        security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild:,productsign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        echo -n "${{ inputs.developer-id-application-base64 }}" | base64 --decode --output $CERTIFICATE_PATH
+        security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+        security default-keychain -s $KEYCHAIN_PATH
+        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+        security import $CERTIFICATE_PATH -A -f pkcs12 -k $KEYCHAIN_PATH -P "${{ inputs.developer-id-application-password }}" -t cert
+        security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild:,productsign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
     - name: Import Developer ID Installer certificate
       if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       env:
-        CERTIFICATE_FILENAME: ./cert_inst.p12
-        KEYCHAIN_FILENAME: ./build.keychain
+        CERTIFICATE_PATH: $RUNNER_TEMP/macOS/cert_inst.p12
+        KEYCHAIN_PATH: $RUNNER_TEMP/macOS/build.keychain
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
       run: |
-        security set-keychain-settings -lut 21600 $KEYCHAIN_FILENAME
-        security default-keychain -s $KEYCHAIN_FILENAME
-        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
-        echo -n "${{ inputs.developer-id-installer-base64 }}" | base64 --decode --output $CERTIFICATE_FILENAME
-        security import $CERTIFICATE_FILENAME -A -f pkcs12 -k $KEYCHAIN_FILENAME -P "${{ inputs.developer-id-installer-password }}" -t cert
-        security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild:,productsign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+        security default-keychain -s $KEYCHAIN_PATH
+        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+        echo -n "${{ inputs.developer-id-installer-base64 }}" | base64 --decode --output $CERTIFICATE_PATH
+        security import $CERTIFICATE_PATH -A -f pkcs12 -k $KEYCHAIN_PATH -P "${{ inputs.developer-id-installer-password }}" -t cert
+        security set-key-partition-list -S apple-tool:,apple:,codesign:,productbuild:,productsign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
     - name: Modify XCode project
       shell: bash
       run: |
@@ -220,13 +220,13 @@ runs:
 
         const configuration = 'Release'
 
-        const liblovePbxprojPath = './love/platform/xcode/liblove.xcodeproj/project.pbxproj';
+        const liblovePbxprojPath = '$RUNNER_TEMP/macOS/love/platform/xcode/liblove.xcodeproj/project.pbxproj';
         const libloveProject = xcode.project(liblovePbxprojPath).parseSync();
         const libloveTarget = 'liblove-macosx'
         libloveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.9', configuration, libloveTarget);
         fs.writeFileSync(liblovePbxprojPath, libloveProject.writeSync());
 
-        const lovePbxprojPath = './love/platform/xcode/love.xcodeproj/project.pbxproj';
+        const lovePbxprojPath = '$RUNNER_TEMP/macOS/love/platform/xcode/love.xcodeproj/project.pbxproj';
         const loveProject = xcode.project(lovePbxprojPath).parseSync();
         const loveTarget = 'love-macosx'
         loveProject.updateBuildProperty('CODE_SIGN_IDENTITY', '"Developer ID Application"', configuration, loveTarget);
@@ -242,7 +242,7 @@ runs:
         );
         fs.writeFileSync(lovePbxprojPath, loveProject.writeSync());
 
-        const plistPath = './love/platform/xcode/macosx/love-macosx.plist';
+        const plistPath = '$RUNNER_TEMP/macOS/love/platform/xcode/macosx/love-macosx.plist';
         const parsed = plist['parse'](fs.readFileSync(plistPath, 'utf8'));
         parsed['CFBundleExecutable'] = '${{ inputs.product-name }}';
         parsed['CFBundleName'] = '${{ inputs.app-name }}';
@@ -251,13 +251,13 @@ runs:
         delete parsed['UTExportedTypeDeclarations'];
         fs.writeFileSync(plistPath, plist['build'](parsed));
 
-        const exportPlistPath = './love/platform/xcode/macosx/macos-copy-app.plist';
+        const exportPlistPath = '$RUNNER_TEMP/macOS/love/platform/xcode/macosx/macos-copy-app.plist';
         const exportPlist = plist['parse'](fs.readFileSync(exportPlistPath, 'utf8'));
         exportPlist['method'] = 'developer-id';
         exportPlist['teamID'] = '${{ inputs.team-id }}';
         fs.writeFileSync(exportPlistPath, plist['build'](exportPlist));
 
-        const iconPath = './love/platform/xcode/Images.xcassets/OS X AppIcon.appiconset/Contents.json';
+        const iconPath = '$RUNNER_TEMP/macOS/love/platform/xcode/Images.xcassets/OS X AppIcon.appiconset/Contents.json';
         const iconContents = JSON.parse(fs.readFileSync(iconPath, 'utf8'));
         iconContents.images.forEach(image => {
             image.filename = 'icon_' + image.size + (image.scale === '2x' ? '@2x' : '') + '.png';
@@ -270,15 +270,15 @@ runs:
         node temp.js
     - name: Build MacOS app
       env:
-        ARCHIVE_PATH: ./archive.xcarchive
-        KEYCHAIN_FILENAME: ./build.keychain
+        ARCHIVE_PATH: $RUNNER_TEMP/macOS/archive.xcarchive
+        KEYCHAIN_PATH: $RUNNER_TEMP/macOS/build.keychain
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
       run: |
-        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
 
         xcodebuild clean archive -quiet \
-        -project ./love/platform/xcode/love.xcodeproj \
+        -project $RUNNER_TEMP/macOS/love/platform/xcode/love.xcodeproj \
         -scheme love-macosx \
         -configuration Release \
         -archivePath ${{ env.ARCHIVE_PATH }} \
@@ -286,35 +286,36 @@ runs:
 
         xcodebuild -exportArchive \
         -archivePath ${{ env.ARCHIVE_PATH }} \
-        -exportPath ./ \
-        -exportOptionsPlist ./love/platform/xcode/macosx/macos-copy-app.plist
+        -exportPath $RUNNER_TEMP/macOS/ \
+        -exportOptionsPlist $RUNNER_TEMP/macOS/love/platform/xcode/macosx/macos-copy-app.plist
+    - name: Make app zip and ensure output folder
+      shell: bash
+      run: |
+        ditto -c -k --sequesterRsrc --keepParent $RUNNER_TEMP/macOS/${{ inputs.product-name }}.app $RUNNER_TEMP/macOS/${{ inputs.product-name }}.zip
+        mkdir -p ${{ inputs.output-folder }}
     - name: Notarize application bundle
       uses: cocoalibs/xcode-notarization-action@v1
       with:
-        app-path: "./${{ inputs.product-name }}.app"
+        app-path: "$RUNNER_TEMP/macOS/${{ inputs.product-name }}.zip"
         apple-id: "${{ inputs.account-username }}"
         password: "${{ inputs.account-password }}"
         team-id: "${{ inputs.team-id }}"
-    - name: Ensure output folder
-      shell: bash
-      run: |
-        mkdir -p ${{ inputs.output-folder }}
     - name: Create pkg file
       if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       env:
-        KEYCHAIN_FILENAME: ./build.keychain
+        KEYCHAIN_PATH: $RUNNER_TEMP/macOS/build.keychain
         KEYCHAIN_PASSWORD: build_keychain_password
       shell: bash
       run: |
-        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_FILENAME
+        security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
         identity=$(security find-identity -v | grep -o 'Developer ID Installer[^"]*')
-        productbuild --component ./${{ inputs.product-name }}.app /Applications ./${{ inputs.product-name }}_unsigned.pkg
-        productsign --sign "$identity" ./${{ inputs.product-name }}_unsigned.pkg ./${{ inputs.product-name }}.pkg
+        productbuild --component $RUNNER_TEMP/macOS/${{ inputs.product-name }}.app /Applications $RUNNER_TEMP/macOS/${{ inputs.product-name }}_unsigned.pkg
+        productsign --sign "$identity" $RUNNER_TEMP/macOS/${{ inputs.product-name }}_unsigned.pkg $RUNNER_TEMP/macOS/${{ inputs.product-name }}.pkg
     - name: Notarize installer pkg
       if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       uses: cocoalibs/xcode-notarization-action@v1
       with:
-        app-path: "./${{ inputs.product-name }}.pkg"
+        app-path: "$RUNNER_TEMP/macOS/${{ inputs.product-name }}.pkg"
         apple-id: "${{ inputs.account-username }}"
         password: "${{ inputs.account-password }}"
         team-id: "${{ inputs.team-id }}"
@@ -322,7 +323,7 @@ runs:
       if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       shell: bash
       run: |
-        mv ./${{ inputs.product-name }}.pkg ${{ inputs.output-folder }}/${{ inputs.product-name }}.pkg
+        mv $RUNNER_TEMP/macOS/${{ inputs.product-name }}.pkg ${{ inputs.output-folder }}/${{ inputs.product-name }}.pkg
     - name: Create dmg file
       if: "${{ inputs.dmg-background-path != '' && inputs.dmg-icon-position != '' && inputs.dmg-icon-size != '' && inputs.dmg-link-position != '' && inputs.dmg-text-size != '' && inputs.dmg-volume-icon-path != '' && inputs.dmg-volume-name != '' && inputs.dmg-window-position != '' && inputs.dmg-window-size != '' }}"
       shell: bash
@@ -340,10 +341,10 @@ runs:
         --window-pos ${{ inputs.dmg-window-position }} \
         --window-size ${{ inputs.dmg-window-size }} \
         "${{ inputs.output-folder }}/${{ inputs.product-name }}.dmg" \
-        "./${{ inputs.product-name }}.app"
+        "$RUNNER_TEMP/macOS/${{ inputs.product-name }}.app"
     - name: Gather packages in output folder
       id: gather-packages
       shell: bash
       run: |
-        ditto -c -k --sequesterRsrc --keepParent ./${{ inputs.product-name }}.app ${{ inputs.output-folder }}/${{ inputs.product-name }}.zip
+        ditto -c -k --sequesterRsrc --keepParent $RUNNER_TEMP/macOS/${{ inputs.product-name }}.app ${{ inputs.output-folder }}/${{ inputs.product-name }}.zip
         echo ::set-output name=package-paths::$(ls -d ${{ inputs.output-folder }}/*)
