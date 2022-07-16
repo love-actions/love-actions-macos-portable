@@ -7,7 +7,7 @@ Github Action for building & deploying macOS `.app(zipped)`, `.dmg` and `.pkg` p
 ### Note
 
 This action would help you distribute your game ***OUTSIDE*** the App Store.
-If you want to distribute through the App Store, please use [love-actions-macos-appstore](https://github.com/marketplace/actions/)
+If you want to distribute through the App Store, please use [love-actions-macos-appstore](https://github.com/marketplace/actions/love-actions-for-macos-appstore)
 
 ### Related actions
 
@@ -32,7 +32,7 @@ See related actions below:
 ```yaml
 - name: Build macOS packages
   id: build-packages
-  uses: 26F-Studio/love-actions-macos@main
+  uses: 26F-Studio/love-actions-macos-portable@main
   with:
     app-name: "My Love Game"
     bundle-id: "org.love2d.my-game"
@@ -62,35 +62,35 @@ See related actions below:
 
 ## All inputs
 
-| Name                                | Required | Default              | Description                                                  |
-| :---------------------------------- | -------- | -------------------- | ------------------------------------------------------------ |
-| `app-name`                          | `false`  | `"LÖVE for macOS"`   | App display name. Used in `platform/xcode/macosx/love-macosx.plist` |
-| `bundle-id`                         | `false`  | `"org.love2d.macOS"` | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj` |
-| `copyright`                         | `false`  | `""`                 | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist` |
-| `icon-path`                         | `false`  | `"./icon.icns"`      | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset` |
-| `love-package`                      | `false`  | `"./game.love"`      | `.love` game package file path                               |
-| `product-name`                      | `false`  | `"love_app"`         | Base name of the package. Used to rename products            |
+| Name                                | Required | Default              | Description                                                                                        |
+| :---------------------------------- | -------- | -------------------- | -------------------------------------------------------------------------------------------------- |
+| `app-name`                          | `false`  | `"LÖVE for macOS"`   | App display name. Used in `platform/xcode/macosx/love-macosx.plist`                                |
+| `bundle-id`                         | `false`  | `"org.love2d.macOS"` | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                             |
+| `copyright`                         | `false`  | `""`                 | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist`                              |
+| `icon-path`                         | `false`  | `"./icon.icns"`      | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset`       |
+| `love-package`                      | `false`  | `"./game.love"`      | `.love` game package file path                                                                     |
+| `product-name`                      | `false`  | `"love_app"`         | Base name of the package. Used to rename products                                                  |
 | `version-string`                    | `false`  | `"11.4"`             | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj` |
-| `output-folder`                     | `false`  | `"./build"`          | Built packages output folder                                 |
-| `account-username`                  | `true`   | `""`                 | Apple ID username. Used to sign the app                      |
-| `account-password`                  | `true`   | `""`                 | App specified password. Used to sign the app                 |
-| `developer-id-application-base64`   | `true`   | `""`                 | Developer ID Application certificate base64 content. Used to sign the app |
-| `developer-id-application-password` | `true`   | `""`                 | Developer ID Application certificate password. Used to sign the app |
-| `team-id`                           | `true`   | `""`                 | Developer team id. Used to sign the app                      |
-| `developer-id-installer-base64`     | `false`   | `""`                 | Developer ID Installer certificate base64 content. Used to sign the .pkg |
-| `developer-id-installer-password`   | `false`   | `""`                 | Developer ID Installer certificate password. Used to sign the .pkg |
-| `dmg-background-path`               | `false`   | `""`                 | DMG background path. Used to create .dmg |
-| `dmg-icon-position`                 | `false`   | `""`                 | DMG icon position. Used to create .dmg |
-| `dmg-icon-size`                     | `false`   | `""`                 | DMG icon size. Used to create .dmg |
-| `dmg-link-position`                 | `false`   | `""`                 | DMG drop link position. Used to create .dmg |
-| `dmg-text-size`                     | `false`   | `""`                 | DMG text size. Used to create .dmg |
-| `dmg-volume-icon-path`              | `false`   | `""`                 | DMG volume icon path. Used to create .dmg |
-| `dmg-volume-name`                   | `false`   | `""`                 | DMG volume name. Used to create .dmg |
-| `dmg-window-position`               | `false`   | `""`                 | DMG window position. Used to create .dmg |
-| `dmg-window-size`                   | `false`   | `""`                 | DMG window size. Used to create .dmg |
+| `output-folder`                     | `false`  | `"./build"`          | Built packages output folder                                                                       |
+| `account-username`                  | `true`   | `""`                 | Apple ID username. Used to sign the app                                                            |
+| `account-password`                  | `true`   | `""`                 | App specified password. Used to sign the app                                                       |
+| `developer-id-application-base64`   | `true`   | `""`                 | Developer ID Application certificate base64 content. Used to sign the app                          |
+| `developer-id-application-password` | `true`   | `""`                 | Developer ID Application certificate password. Used to sign the app                                |
+| `team-id`                           | `true`   | `""`                 | Developer team id. Used to sign the app                                                            |
+| `developer-id-installer-base64`     | `false`  | `""`                 | Developer ID Installer certificate base64 content. Used to sign the .pkg                           |
+| `developer-id-installer-password`   | `false`  | `""`                 | Developer ID Installer certificate password. Used to sign the .pkg                                 |
+| `dmg-background-path`               | `false`  | `""`                 | DMG background path. Used to create .dmg                                                           |
+| `dmg-icon-position`                 | `false`  | `""`                 | DMG icon position. Used to create .dmg                                                             |
+| `dmg-icon-size`                     | `false`  | `""`                 | DMG icon size. Used to create .dmg                                                                 |
+| `dmg-link-position`                 | `false`  | `""`                 | DMG drop link position. Used to create .dmg                                                        |
+| `dmg-text-size`                     | `false`  | `""`                 | DMG text size. Used to create .dmg                                                                 |
+| `dmg-volume-icon-path`              | `false`  | `""`                 | DMG volume icon path. Used to create .dmg                                                          |
+| `dmg-volume-name`                   | `false`  | `""`                 | DMG volume name. Used to create .dmg                                                               |
+| `dmg-window-position`               | `false`  | `""`                 | DMG window position. Used to create .dmg                                                           |
+| `dmg-window-size`                   | `false`  | `""`                 | DMG window size. Used to create .dmg                                                               |
 
 ## All outputs
 
-| Name              | Example                 | Description                                                                                     |
-| :---------------- | ----------------------- | ----------------------------------------------------------------------------------------------- |
+| Name            | Example               | Description                                                                                     |
+| :-------------- | --------------------- | ----------------------------------------------------------------------------------------------- |
 | `package-paths` | `./build/my_game.app` | Built packages' paths in a bash-style list relative to the repository root, separated by spaces |
