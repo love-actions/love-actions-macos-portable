@@ -271,6 +271,7 @@ runs:
         const loveProject = xcode.project(lovePbxprojPath).parseSync();
         const loveTarget = 'love-macosx'
         loveProject.updateBuildProperty('CODE_SIGN_IDENTITY', '"Developer ID Application"', configuration, loveTarget);
+        loveProject.updateBuildProperty('CODE_SIGN_STYLE', '"Manual"', configuration, loveTarget);
         loveProject.updateBuildProperty('DEVELOPMENT_TEAM', '${{ inputs.team-id }}', configuration, loveTarget);
         loveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.9', configuration, loveTarget);
         loveProject.updateBuildProperty('MARKETING_VERSION', '${{ inputs.version-string }}', configuration, loveTarget);
