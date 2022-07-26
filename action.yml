@@ -34,6 +34,12 @@ inputs:
       Would be used to assemble the executable
     required: false
     default: "./game.love"
+  libs-path:
+    description: |
+      Path to the libs folder
+      Would copy all contents to platform/xcode/
+      Top folder not included
+    required: false
   product-name:
     description: |
       Base name of the package
@@ -244,6 +250,45 @@ runs:
             {target: loveProject.findTargetKey('"love-macosx"')},
             loveProject.findPBXGroupKey({name: 'Resources'})
         );
+        const libFolder = '${{ inputs.libs-path }}';
+        if (libFolder !== '') {
+            fs.readdirSync(libFolder).forEach(filename => {
+                fs.copyFileSync(
+                    path.join(libFolder, filename),
+                    path.join('./love-actions-ios/love/platform/xcode', filename)
+                );
+                if (path.extname(filename) === '.a') {
+                    loveProject.addStaticLibrary(
+                        filename,
+                        {target: loveProject.findTargetKey('"' + loveTarget + '"')}
+                    );
+                    loveProject.removeFromLibrarySearchPaths({path: filename})
+                } else if (path.extname(filename) === '.dylib') {
+                    const dylibFile = loveProject.addFile(
+                        filename,
+                        loveProject.findPBXGroupKey({name: 'love'}),
+                        {
+                            customFramework: true,
+                            target: loveProject.findTargetKey('"' + loveTarget + '"')
+                        }
+                    );
+                    dylibFile.group = 'Copy Frameworks';
+                    dylibFile.path = './' + filename;
+                    dylibFile.settings = '{ATTRIBUTES = (CodeSignOnCopy, ); }';
+                    dylibFile.uuid = loveProject.generateUuid();
+                    loveProject.addToPbxBuildFileSection(dylibFile);
+                    loveProject.buildPhaseObject(
+                        'PBXCopyFilesBuildPhase',
+                        'Copy Frameworks',
+                        loveProject.findTargetKey('"' + loveTarget + '"')
+                    ).files.push({
+                        value: dylibFile.uuid,
+                        comment: dylibFile.basename + ' in ' + dylibFile.group
+                    });
+                }
+            });
+            loveProject.addToLibrarySearchPaths('"$' + '(PROJECT_DIR)"');
+        }
         fs.writeFileSync(lovePbxprojPath, loveProject.writeSync());
 
         const plistPath = './love-actions-macos-portable/love/platform/xcode/macosx/love-macosx.plist';
