@@ -38,8 +38,11 @@ See related actions below:
     bundle-id: "org.love2d.my-game"
     copyright: "Copyright © 2020-2022 XXX Co. All Rights Reserved."
     icon-path: ./assets/macOS/icon.icns
+    love-ref: "11.4"
+    love-patch: "./love.patch"
     love-package: "./game.love"
     libs-path: ./libs
+    extra-assets: ./README.md ./license.txt
     product-name: "my_game"
     version-string: "2.3.4"
     output-folder: "./dist"
@@ -69,8 +72,11 @@ See related actions below:
 | `bundle-id`                         | `false`  | `"org.love2d.macOS"` | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                             |
 | `copyright`                         | `false`  | `""`                 | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist`                              |
 | `icon-path`                         | `false`  | `"./icon.icns"`      | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset`       |
+| `love-ref`                          | `false`  | `"c35356c841976eb6f370347b81eec845d5520338"` | LÖVE git ref. Could be commit hash, tags or branch name                    |
+| `love-patch`                        | `false`  | `""`                 | Git patch file path for the LÖVE repo. The patch must start from `love-ref`. You can use `git diff -p <tag1> <tag2>` to get the patch file |
 | `love-package`                      | `false`  | `"./game.love"`      | `.love` game package file path                                                                     |
 | `libs-path`                         | `false`  | `""`                 | Path to the libraries folder. Would copy all contents to `platform/xcode/` excluding top folder    |
+| `extra-assets`                      | `false`  | `""`                 | List of folder & file paths to be added to `platform/xcode/`. Separated by spaces                  |
 | `product-name`                      | `false`  | `"love_app"`         | Base name of the package. Used to rename products                                                  |
 | `version-string`                    | `false`  | `"11.4"`             | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj` |
 | `output-folder`                     | `false`  | `"./build"`          | Built packages output folder                                                                       |

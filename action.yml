@@ -28,6 +28,18 @@ inputs:
       Would be used in platform/xcode/Images.xcassets/OS X AppIcon.appiconset
     required: true
     default: "./icon.icns"
+  love-ref:
+    description: |
+      LÖVE git ref
+      Could be commit hash, tags or branch name
+    required: false
+    default: "c35356c841976eb6f370347b81eec845d5520338"
+  love-patch:
+    description: |
+      Git patch file path for the LÖVE repo
+      The patch must start from `love-ref`
+      You can use `git diff` to get the patch file
+    required: false
   love-package:
     description: |
       Love package
@@ -39,6 +51,12 @@ inputs:
       Path to the libs folder
       Would copy all contents to platform/xcode/
       Top folder not included
+    required: false
+  extra-assets:
+    description: |
+      List of file paths to be added to `Copy Bundle Resources` build phase
+      Don't need global quotes, separated by spaces
+      Looks like: ./assets/ ./logics/ ./main.lua ./config.lua
     required: false
   product-name:
     description: |
@@ -169,21 +187,33 @@ runs:
       uses: actions/checkout@v3
       with:
         path: ./love-actions-macos-portable/love
-        ref: c35356c841976eb6f370347b81eec845d5520338
+        ref: ${{ inputs.love-ref }}
         repository: love2d/love
+    - name: Apply love patch
+      if: "${{ inputs.love-patch != '' }}"
+      shell: bash
+      run: |
+        cp ${{ inputs.love-patch }} ./love-actions-macos-portable/love/love.patch
+        cd ./love-actions-macos-portable/love
+        git apply ./love.patch
     - name: Checkout framework SDK
       uses: actions/checkout@v3
       with:
         path: ./love-actions-macos-portable/love-apple-dependencies
         ref: 402eed62c2bd654a860bb64544393285fb640497
         repository: love2d/love-apple-dependencies
-    - name: Move framework SDK and love package
+    - name: Copy framework SDK and love package
       shell: bash
       run: |
-        mv ./love-actions-macos-portable/love-apple-dependencies/macOS/Frameworks/ ./love-actions-macos-portable/love/platform/xcode/macosx
-        mv ${{ inputs.love-package }} ./love-actions-macos-portable/love/platform/xcode/game.love
+        cp ./love-actions-macos-portable/love-apple-dependencies/macOS/Frameworks/ ./love-actions-macos-portable/love/platform/xcode/macosx
+        cp ${{ inputs.love-package }} ./love-actions-macos-portable/love/platform/xcode/game.love
         mkdir -p ./love-actions-macos-portable/love/platform/xcode/build/Debug
         mkdir -p ./love-actions-macos-portable/love/platform/xcode/build/Release
+    - name: Copy extra assets
+      if: "${{ inputs.extra-assets != '' }}"
+      shell: bash
+      run: |
+        cp -r -f ${{ inputs.extra-assets }} ./love-actions-macos-portable/love/platform/xcode/
     - name: Process icons
       shell: bash
       run: |
@@ -225,10 +255,11 @@ runs:
 
         cat <<EOT >> temp.js
         const fs = require('fs');
+        const path = require('path');
         const plist = require('plist');
         const xcode = require('xcode');
 
-        const configuration = 'Release'
+        const configuration = null;
 
         const liblovePbxprojPath = './love-actions-macos-portable/love/platform/xcode/liblove.xcodeproj/project.pbxproj';
         const libloveProject = xcode.project(liblovePbxprojPath).parseSync();
@@ -250,6 +281,16 @@ runs:
             {target: loveProject.findTargetKey('"love-macosx"')},
             loveProject.findPBXGroupKey({name: 'Resources'})
         );
+        const extraAssets = '${{ inputs.extra-assets }}';
+        if (extraAssets !== '') {
+            extraAssets.split(' ').forEach(filename => {
+                loveProject.addResourceFile(
+                    filename,
+                    {target: loveProject.findTargetKey('"' + loveTarget + '"')},
+                    loveProject.findPBXGroupKey({name: 'Resources'})
+                );
+            });
+        }
         const libFolder = '${{ inputs.libs-path }}';
         if (libFolder !== '') {
             fs.readdirSync(libFolder).forEach(filename => {
