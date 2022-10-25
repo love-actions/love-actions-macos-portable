@@ -32,7 +32,7 @@ See related actions below:
 ```yaml
 - name: Build macOS packages
   id: build-packages
-  uses: 26F-Studio/love-actions-macos-portable@main
+  uses: love-action/love-actions-macos-portable@v1
   with:
     app-name: "My Love Game"
     bundle-id: "org.love2d.my-game"
@@ -66,39 +66,39 @@ See related actions below:
 
 ## All inputs
 
-| Name                                | Required | Default              | Description                                                                                        |
-| :---------------------------------- | -------- | -------------------- | -------------------------------------------------------------------------------------------------- |
-| `app-name`                          | `false`  | `"LÖVE for macOS"`   | App display name. Used in `platform/xcode/macosx/love-macosx.plist`                                |
-| `bundle-id`                         | `false`  | `"org.love2d.macOS"` | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                             |
-| `copyright`                         | `false`  | `""`                 | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist`                              |
-| `icon-path`                         | `false`  | `"./icon.icns"`      | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset`       |
-| `love-ref`                          | `false`  | `"c35356c841976eb6f370347b81eec845d5520338"` | LÖVE git ref. Could be commit hash, tags or branch name                    |
-| `love-patch`                        | `false`  | `""`                 | Git patch file path for the LÖVE repo. The patch must start from `love-ref`. You can use `git diff -p <tag1> <tag2>` to get the patch file |
-| `love-package`                      | `false`  | `"./game.love"`      | `.love` game package file path                                                                     |
-| `libs-path`                         | `false`  | `""`                 | Path to the libraries folder. Would copy all contents to `platform/xcode/` excluding top folder    |
-| `extra-assets`                      | `false`  | `""`                 | List of folder & file paths to be added to `platform/xcode/`. Separated by spaces                  |
-| `product-name`                      | `false`  | `"love_app"`         | Base name of the package. Used to rename products                                                  |
-| `version-string`                    | `false`  | `"11.4"`             | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj` |
-| `output-folder`                     | `false`  | `"./build"`          | Built packages output folder                                                                       |
-| `account-username`                  | `true`   | `""`                 | Apple ID username. Used to sign the app                                                            |
-| `account-password`                  | `true`   | `""`                 | App specified password. Used to sign the app                                                       |
-| `developer-id-application-base64`   | `true`   | `""`                 | Developer ID Application certificate base64 content. Used to sign the app                          |
-| `developer-id-application-password` | `true`   | `""`                 | Developer ID Application certificate password. Used to sign the app                                |
-| `team-id`                           | `true`   | `""`                 | Developer team id. Used to sign the app                                                            |
-| `developer-id-installer-base64`     | `false`  | `""`                 | Developer ID Installer certificate base64 content. Used to sign the .pkg                           |
-| `developer-id-installer-password`   | `false`  | `""`                 | Developer ID Installer certificate password. Used to sign the .pkg                                 |
-| `dmg-background-path`               | `false`  | `""`                 | DMG background path. Used to create .dmg                                                           |
-| `dmg-icon-position`                 | `false`  | `""`                 | DMG icon position. Used to create .dmg                                                             |
-| `dmg-icon-size`                     | `false`  | `""`                 | DMG icon size. Used to create .dmg                                                                 |
-| `dmg-link-position`                 | `false`  | `""`                 | DMG drop link position. Used to create .dmg                                                        |
-| `dmg-text-size`                     | `false`  | `""`                 | DMG text size. Used to create .dmg                                                                 |
-| `dmg-volume-icon-path`              | `false`  | `""`                 | DMG volume icon path. Used to create .dmg                                                          |
-| `dmg-volume-name`                   | `false`  | `""`                 | DMG volume name. Used to create .dmg                                                               |
-| `dmg-window-position`               | `false`  | `""`                 | DMG window position. Used to create .dmg                                                           |
-| `dmg-window-size`                   | `false`  | `""`                 | DMG window size. Used to create .dmg                                                               |
+| Name                                  | Required  | Default                                        | Description                                                                                                                                     |
+| :------------------------------------ | --------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app-name`                          | `false` | `"LÖVE for macOS"`                          | App display name. Used in `platform/xcode/macosx/love-macosx.plist`                                                                           |
+| `bundle-id`                         | `false` | `"org.love2d.macOS"`                         | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                                                                        |
+| `copyright`                         | `false` | `""`                                         | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist`                                                                         |
+| `icon-path`                         | `false` | `"./icon.icns"`                              | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset`                                                |
+| `love-ref`                          | `false` | `"c35356c841976eb6f370347b81eec845d5520338"` | LÖVE git ref. Could be commit hash, tags or branch name                                                                                        |
+| `love-patch`                        | `false` | `""`                                         | Git patch file path for the LÖVE repo. The patch must start from `love-ref`. You can use `git diff -p <tag1> <tag2>` to get the patch file |
+| `love-package`                      | `false` | `"./game.love"`                              | `.love` game package file path                                                                                                                |
+| `libs-path`                         | `false` | `""`                                         | Path to the libraries folder. Would copy all contents to `platform/xcode/` excluding top folder                                               |
+| `extra-assets`                      | `false` | `""`                                         | List of folder & file paths to be added to `platform/xcode/`. Separated by spaces                                                             |
+| `product-name`                      | `false` | `"love_app"`                                 | Base name of the package. Used to rename products                                                                                               |
+| `version-string`                    | `false` | `"11.4"`                                     | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                                            |
+| `output-folder`                     | `false` | `"./build"`                                  | Built packages output folder                                                                                                                    |
+| `account-username`                  | `true`  | `""`                                         | Apple ID username. Used to sign the app                                                                                                         |
+| `account-password`                  | `true`  | `""`                                         | App specified password. Used to sign the app                                                                                                    |
+| `developer-id-application-base64`   | `true`  | `""`                                         | Developer ID Application certificate base64 content. Used to sign the app                                                                       |
+| `developer-id-application-password` | `true`  | `""`                                         | Developer ID Application certificate password. Used to sign the app                                                                             |
+| `team-id`                           | `true`  | `""`                                         | Developer team id. Used to sign the app                                                                                                         |
+| `developer-id-installer-base64`     | `false` | `""`                                         | Developer ID Installer certificate base64 content. Used to sign the .pkg                                                                        |
+| `developer-id-installer-password`   | `false` | `""`                                         | Developer ID Installer certificate password. Used to sign the .pkg                                                                              |
+| `dmg-background-path`               | `false` | `""`                                         | DMG background path. Used to create .dmg                                                                                                        |
+| `dmg-icon-position`                 | `false` | `""`                                         | DMG icon position. Used to create .dmg                                                                                                          |
+| `dmg-icon-size`                     | `false` | `""`                                         | DMG icon size. Used to create .dmg                                                                                                              |
+| `dmg-link-position`                 | `false` | `""`                                         | DMG drop link position. Used to create .dmg                                                                                                     |
+| `dmg-text-size`                     | `false` | `""`                                         | DMG text size. Used to create .dmg                                                                                                              |
+| `dmg-volume-icon-path`              | `false` | `""`                                         | DMG volume icon path. Used to create .dmg                                                                                                       |
+| `dmg-volume-name`                   | `false` | `""`                                         | DMG volume name. Used to create .dmg                                                                                                            |
+| `dmg-window-position`               | `false` | `""`                                         | DMG window position. Used to create .dmg                                                                                                        |
+| `dmg-window-size`                   | `false` | `""`                                         | DMG window size. Used to create .dmg                                                                                                            |
 
 ## All outputs
 
 | Name              | Example                                                         | Description                                                                                     |
 | :---------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `package-paths`   | `./build/my_game.zip ./build/my_game.pkg ./build/my_game.dmg`   | Built packages' paths in a bash-style list relative to the repository root, separated by spaces |
+| `package-paths` | `./build/my_game.zip ./build/my_game.pkg ./build/my_game.dmg` | Built packages' paths in a bash-style list relative to the repository root, separated by spaces |
