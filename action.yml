@@ -432,7 +432,7 @@ runs:
       shell: bash
       run: |
         ditto -c -k --sequesterRsrc --keepParent ./love-actions-macos-portable/${{ inputs.product-name }}.app ${{ inputs.output-folder }}/${{ inputs.product-name }}.zip
-        echo ::set-output name=package-paths::$(ls -d ${{ inputs.output-folder }}/*)
+        echo "package-paths=$(ls -d ${{ inputs.output-folder }}/*)" >> $GITHUB_OUTPUT
     - name: Cleanup
       shell: bash
       run: |
