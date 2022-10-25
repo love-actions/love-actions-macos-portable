@@ -380,7 +380,7 @@ runs:
         -exportPath ./love-actions-macos-portable/ \
         -exportOptionsPlist ./love-actions-macos-portable/love/platform/xcode/macosx/macos-copy-app.plist
     - name: Notarize application bundle
-      uses: 26F-Studio/xcode-notarizer@v1.0.1
+      uses: love-actions/xcode-notarizer@v1
       with:
         product-path: ./love-actions-macos-portable/${{ inputs.product-name }}.app
         apple-id: ${{ inputs.account-username }}
@@ -398,7 +398,7 @@ runs:
         productbuild --component ./love-actions-macos-portable/${{ inputs.product-name }}.app /Applications ./love-actions-macos-portable/${{ inputs.product-name }}_unsigned.pkg
         productsign --sign "$identity" ./love-actions-macos-portable/${{ inputs.product-name }}_unsigned.pkg ./love-actions-macos-portable/${{ inputs.product-name }}.pkg
     - name: Notarize installer pkg
-      uses: 26F-Studio/xcode-notarizer@v1.0.1
+      uses: love-actions/xcode-notarizer@v1
       with:
         product-path: ./love-actions-macos-portable/${{ inputs.product-name }}.pkg
         apple-id: ${{ inputs.account-username }}
