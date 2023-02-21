@@ -38,7 +38,7 @@ See related actions below:
     bundle-id: "org.love2d.my-game"
     copyright: "Copyright © 2020-2022 XXX Co. All Rights Reserved."
     icon-path: ./assets/macOS/icon.icns
-    love-ref: "11.4"
+    love-ref: "fc3f5ee6209a0aab9a4d381ed5cd99110f9ff2f2"
     love-patch: "./love.patch"
     love-package: "./game.love"
     libs-path: ./libs
@@ -189,7 +189,7 @@ jobs:
 | `libs-path`                         | `false` | `""`                                         | Path to the libraries folder. Would copy all contents to `platform/xcode/` excluding top folder                                               |
 | `extra-assets`                      | `false` | `""`                                         | List of folder & file paths to be added to `platform/xcode/`. Separated by spaces                                                             |
 | `product-name`                      | `false` | `"love_app"`                                 | Base name of the package. Used to rename products                                                                                               |
-| `version-string`                    | `false` | `"11.4"`                                     | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                                            |
+| `version-string`                    | `false` | `"fc3f5ee6209a0aab9a4d381ed5cd99110f9ff2f2"` | App version string no more than 3 numbers. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                                            |
 | `output-folder`                     | `false` | `"./build"`                                  | Built packages output folder                                                                                                                    |
 | `account-username`                  | `true`  | `""`                                         | Apple ID username. Used to sign the app                                                                                                         |
 | `account-password`                  | `true`  | `""`                                         | App specified password. Used to sign the app                                                                                                    |

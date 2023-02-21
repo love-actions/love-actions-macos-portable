@@ -33,7 +33,7 @@ inputs:
       LÖVE git ref
       Could be commit hash, tags or branch name
     required: false
-    default: "c35356c841976eb6f370347b81eec845d5520338"
+    default: "fc3f5ee6209a0aab9a4d381ed5cd99110f9ff2f2"
   love-patch:
     description: |
       Git patch file path for the LÖVE repo
