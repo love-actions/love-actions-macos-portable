@@ -264,7 +264,7 @@ runs:
         const liblovePbxprojPath = './love-actions-macos-portable/love/platform/xcode/liblove.xcodeproj/project.pbxproj';
         const libloveProject = xcode.project(liblovePbxprojPath).parseSync();
         const libloveTarget = 'liblove-macosx'
-        libloveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.13', configuration, libloveTarget);
+        libloveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '12.0', configuration, libloveTarget);
         fs.writeFileSync(liblovePbxprojPath, libloveProject.writeSync());
 
         const lovePbxprojPath = './love-actions-macos-portable/love/platform/xcode/love.xcodeproj/project.pbxproj';
@@ -273,7 +273,7 @@ runs:
         loveProject.updateBuildProperty('CODE_SIGN_IDENTITY', '"Developer ID Application"', configuration, loveTarget);
         loveProject.updateBuildProperty('CODE_SIGN_STYLE', '"Manual"', configuration, loveTarget);
         loveProject.updateBuildProperty('DEVELOPMENT_TEAM', '${{ inputs.team-id }}', configuration, loveTarget);
-        loveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.13', configuration, loveTarget);
+        loveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '12.0', configuration, loveTarget);
         loveProject.updateBuildProperty('MARKETING_VERSION', '${{ inputs.version-string }}', configuration, loveTarget);
         loveProject.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', '${{ inputs.bundle-id }}', configuration, loveTarget);
         loveProject.updateBuildProperty('PRODUCT_NAME', '${{ inputs.product-name }}', configuration, loveTarget);
