@@ -34,6 +34,12 @@ inputs:
       Could be commit hash, tags or branch name
     required: false
     default: "fc3f5ee6209a0aab9a4d381ed5cd99110f9ff2f2"
+  love-apple-dependencies-ref:
+    description: |
+      LÖVE Apple dependency git ref
+      Could be commit hash, tags or branch name
+    required: false
+    default: "402eed62c2bd654a860bb64544393285fb640497"
   love-patch:
     description: |
       Git patch file path for the LÖVE repo
@@ -200,7 +206,7 @@ runs:
       uses: actions/checkout@v3
       with:
         path: ./love-actions-macos-portable/love-apple-dependencies
-        ref: 402eed62c2bd654a860bb64544393285fb640497
+        ref: ${{ inputs.love-apple-dependencies-ref }}
         repository: love2d/love-apple-dependencies
     - name: Move framework SDK and love package
       shell: bash

@@ -39,6 +39,7 @@ See related actions below:
     copyright: "Copyright © 2020-2022 XXX Co. All Rights Reserved."
     icon-path: ./assets/macOS/icon.icns
     love-ref: "fc3f5ee6209a0aab9a4d381ed5cd99110f9ff2f2"
+    love-apple-dependencies-ref: "402eed62c2bd654a860bb64544393285fb640497"
     love-patch: "./love.patch"
     love-package: "./game.love"
     libs-path: ./libs
@@ -183,7 +184,8 @@ jobs:
 | `bundle-id`                         | `false` | `"org.love2d.macOS"`                         | App bundle id. Used in `platform/xcode/love.xcodeproj/project.pbxproj`                                                                        |
 | `copyright`                         | `false` | `""`                                         | App copyright info. Used in `platform/xcode/macosx/love-macosx.plist`                                                                         |
 | `icon-path`                         | `false` | `"./icon.icns"`                              | `.icns` format icon's path. Used in `platform/xcode/Images.xcassets/OS X AppIcon.appiconset`                                                |
-| `love-ref`                          | `false` | `"c35356c841976eb6f370347b81eec845d5520338"` | LÖVE git ref. Could be commit hash, tags or branch name                                                                                        |
+| `love-ref`                          | `false` | `"fc3f5ee6209a0aab9a4d381ed5cd99110f9ff2f2"` | LÖVE git ref. Could be commit hash, tags or branch name                                                                                        |
+| `love-apple-dependencies-ref`       | `false` | `"402eed62c2bd654a860bb64544393285fb640497"` | LÖVE Apple dependencies git ref (commit, tag, or branch). Choose a ref compatible with `love-ref`.                                             |
 | `love-patch`                        | `false` | `""`                                         | Git patch file path for the LÖVE repo. The patch must start from `love-ref`. You can use `git diff -p <tag1> <tag2>` to get the patch file |
 | `love-package`                      | `false` | `"./game.love"`                              | `.love` game package file path                                                                                                                |
 | `libs-path`                         | `false` | `""`                                         | Path to the libraries folder. Would copy all contents to `platform/xcode/` excluding top folder                                               |
