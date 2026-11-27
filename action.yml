@@ -398,6 +398,7 @@ runs:
         productbuild --component ./love-actions-macos-portable/${{ inputs.product-name }}.app /Applications ./love-actions-macos-portable/${{ inputs.product-name }}_unsigned.pkg
         productsign --sign "$identity" ./love-actions-macos-portable/${{ inputs.product-name }}_unsigned.pkg ./love-actions-macos-portable/${{ inputs.product-name }}.pkg
     - name: Notarize installer pkg
+      if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       uses: love-actions/xcode-notarizer@v1
       with:
         product-path: ./love-actions-macos-portable/${{ inputs.product-name }}.pkg
