@@ -184,7 +184,7 @@ runs:
         mkdir -p ./love-actions-macos-portable/
         mkdir -p ${{ inputs.output-folder }}
     - name: Checkout love
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         path: ./love-actions-macos-portable/love
         ref: ${{ inputs.love-ref }}
@@ -197,7 +197,7 @@ runs:
         cd ./love-actions-macos-portable/love
         git apply ./love.patch
     - name: Checkout framework SDK
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         path: ./love-actions-macos-portable/love-apple-dependencies
         ref: 402eed62c2bd654a860bb64544393285fb640497
@@ -251,7 +251,7 @@ runs:
     - name: Modify XCode project
       shell: bash
       run: |
-        npm i plist xcode
+        npm i plist@4.0.0 xcode
 
         cat <<EOT >> temp.js
         const fs = require('fs');
@@ -264,7 +264,7 @@ runs:
         const liblovePbxprojPath = './love-actions-macos-portable/love/platform/xcode/liblove.xcodeproj/project.pbxproj';
         const libloveProject = xcode.project(liblovePbxprojPath).parseSync();
         const libloveTarget = 'liblove-macosx'
-        libloveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.9', configuration, libloveTarget);
+        libloveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '12.0', configuration, libloveTarget);
         fs.writeFileSync(liblovePbxprojPath, libloveProject.writeSync());
 
         const lovePbxprojPath = './love-actions-macos-portable/love/platform/xcode/love.xcodeproj/project.pbxproj';
@@ -273,7 +273,7 @@ runs:
         loveProject.updateBuildProperty('CODE_SIGN_IDENTITY', '"Developer ID Application"', configuration, loveTarget);
         loveProject.updateBuildProperty('CODE_SIGN_STYLE', '"Manual"', configuration, loveTarget);
         loveProject.updateBuildProperty('DEVELOPMENT_TEAM', '${{ inputs.team-id }}', configuration, loveTarget);
-        loveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '10.9', configuration, loveTarget);
+        loveProject.updateBuildProperty('MACOSX_DEPLOYMENT_TARGET', '12.0', configuration, loveTarget);
         loveProject.updateBuildProperty('MARKETING_VERSION', '${{ inputs.version-string }}', configuration, loveTarget);
         loveProject.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', '${{ inputs.bundle-id }}', configuration, loveTarget);
         loveProject.updateBuildProperty('PRODUCT_NAME', '${{ inputs.product-name }}', configuration, loveTarget);
@@ -305,7 +305,7 @@ runs:
                         {target: loveProject.findTargetKey('"' + loveTarget + '"')}
                     );
                     loveProject.removeFromLibrarySearchPaths({path: filename})
-                } else if (path.extname(filename) === '.dylib') {
+                } else if (path.extname(filename) === '.dylib' || path.extname(filename) === '.so') {
                     const dylibFile = loveProject.addFile(
                         filename,
                         loveProject.findPBXGroupKey({name: 'love'}),
@@ -398,6 +398,7 @@ runs:
         productbuild --component ./love-actions-macos-portable/${{ inputs.product-name }}.app /Applications ./love-actions-macos-portable/${{ inputs.product-name }}_unsigned.pkg
         productsign --sign "$identity" ./love-actions-macos-portable/${{ inputs.product-name }}_unsigned.pkg ./love-actions-macos-portable/${{ inputs.product-name }}.pkg
     - name: Notarize installer pkg
+      if: "${{ inputs.developer-id-installer-base64 != '' && inputs.developer-id-installer-password != '' }}"
       uses: love-actions/xcode-notarizer@v1
       with:
         product-path: ./love-actions-macos-portable/${{ inputs.product-name }}.pkg
@@ -431,7 +432,8 @@ runs:
       id: gather-packages
       shell: bash
       run: |
-        ditto -c -k --sequesterRsrc --keepParent ./love-actions-macos-portable/${{ inputs.product-name }}.app ${{ inputs.output-folder }}/${{ inputs.product-name }}.zip
+        ditto -c -k --sequesterRsrc --keepParent ./love-actions-macos-portable/${{ inputs.product-name }}.app ${{ inputs.output-folder }}/${{ inputs.product-name }}-macos.zip
+        mv ./love-actions-macos-portable/${{ inputs.product-name }}.app ${{ inputs.output-folder }}/${{ inputs.product-name }}.app
         echo "package-paths=$(ls -d ${{ inputs.output-folder }}/* | tr '\r\n' ' ')" >> $GITHUB_OUTPUT
     - name: Cleanup
       shell: bash
